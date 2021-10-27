@@ -10,7 +10,7 @@ export class AuthService {
   constructor() { }
 
   get userIsAuthenticated() {
-    return this.userIsAuthenticated;
+    return this._userIsAuthenticated;
   }
 
   login() {
