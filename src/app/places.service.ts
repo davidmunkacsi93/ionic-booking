@@ -14,7 +14,7 @@ export class PlacesService {
       149.99
     ),
     new Place(
-      'p1',
+      'p2',
       'L\'Amour Toujours',
       'A romantic place in paris.',
       'https://images.squarespace-cdn.com/content/v1/5bc5dd89f8135a188f4d62a5/1583501077136-YWI0NDO0D0PXBI229SV4/ke17ZwdGBToddI8pDm48kIKSX_SZjyDOj8RLeXGW1RN7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmQyViSO8WVy1F2YAzXWvEVNabebp8wOGGQ-vpKUbL-vgz2y3-FwKjJA13dgL8WU6V/The+Beautiful+Paris+Apartment+of+Jackie+Kai+Ellis+-+The+Nordroom',
