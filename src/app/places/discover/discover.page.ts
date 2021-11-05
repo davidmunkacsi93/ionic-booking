@@ -22,7 +22,12 @@ export class DiscoverPage implements OnInit {
     this.listedLoadedPlaces = this.loadedPlaces.slice(1);
   }
 
-  onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
-    console.log(event.detail);
+  onFilterUpdate(event: Event) {
+    const segmentChangeEventDetail = event as CustomEvent<SegmentChangeEventDetail>;
+    if (segmentChangeEventDetail === null) {
+      return;
+    }
+
+    console.log(segmentChangeEventDetail.detail);
   }
 }
