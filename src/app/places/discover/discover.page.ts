@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular';
+import { SegmentChangeEventDetail } from '@ionic/core';
 import { PlacesService } from 'src/app/places.service';
 import { Place } from '../places.model';
 
@@ -21,4 +22,7 @@ export class DiscoverPage implements OnInit {
     this.listedLoadedPlaces = this.loadedPlaces.slice(1);
   }
 
+  onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
+    console.log(event.detail);
+  }
 }
