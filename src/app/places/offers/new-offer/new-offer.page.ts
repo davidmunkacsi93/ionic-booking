@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { DateService } from 'src/app/services/date.service';
 
 @Component({
   selector: 'app-new-offer',
@@ -13,7 +14,7 @@ export class NewOfferPage implements OnInit {
   availableToMinDate: string;
   maxDate: string;
 
-  constructor() {}
+  constructor(private dateService: DateService) {}
 
   ngOnInit() {
     this.initializeDates();
@@ -21,15 +22,9 @@ export class NewOfferPage implements OnInit {
   }
 
   initializeDates() {
-    this.availableFromMinDate = new Date().toISOString();
-
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const day = now.getDate();
-
-    this.availableToMinDate = new Date(year, month, day + 2).toISOString();
-    this.maxDate = new Date(year + 4, month, day + 1).toISOString();
+    this.availableFromMinDate = this.dateService.getAvailableFromMinDateISOString();
+    this.availableToMinDate = this.dateService.getAvailableToMinDateISOString();
+    this.maxDate = this.dateService.getMaxDateISOString();
   }
 
   initializeForm() {
