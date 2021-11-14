@@ -32,10 +32,10 @@ export class EditOfferPage implements OnInit {
         return;
       }
       this.place = this.placesService.getPlace(paramMap.get('placeId'));
-    });
 
-    this.initializeDates();
-    this.initializeForm();
+      this.initializeDates();
+      this.initializeForm();
+    });
   }
 
   initializeDates() {
@@ -57,7 +57,7 @@ export class EditOfferPage implements OnInit {
       }),
       price: new FormControl(this.place.price, {
         updateOn: 'blur',
-        validators: [Validators.required, Validators.min(100)],
+        validators: [Validators.required, Validators.min(0)],
       }),
       dateFrom: new FormControl(this.place.dateFrom.toISOString(), {
         updateOn: 'blur',
@@ -70,7 +70,11 @@ export class EditOfferPage implements OnInit {
     });
   }
 
-  onEditOffer() {}
+  onUpdateOffer() {
+    if (!this.form.valid) {
+      return;
+    }
+  }
 
   onBackButtonClicked() {
     this.navCtrl.navigateBack('/places/tabs/offers/' + this.place.id);
