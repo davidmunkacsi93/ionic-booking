@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{ isLogin ? 'Login' : 'Signup' }}</ion-title>
+    <ion-title>{{ isLogin ? 'Login' : 'Sign up' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -70,7 +70,7 @@
             *ngIf="!isLoading"
             [disabled]="!f.valid"
           >
-            Login
+            {{ isLogin ? 'Login' : 'Sign up' }}
           </ion-button>
         </ion-col>
       </ion-row>
