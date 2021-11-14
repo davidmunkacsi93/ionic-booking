@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-new-offer',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./new-offer.page.scss'],
 })
 export class NewOfferPage implements OnInit {
+  form: FormGroup;
+
   availableFromMinDate: string;
   availableToMinDate: string;
   maxDate: string;
@@ -13,6 +16,11 @@ export class NewOfferPage implements OnInit {
   constructor() {}
 
   ngOnInit() {
+    this.initializeDates();
+    this.initializeForm();
+  }
+
+  initializeDates() {
     this.availableFromMinDate = new Date().toISOString();
 
     const now = new Date();
@@ -24,7 +32,32 @@ export class NewOfferPage implements OnInit {
     this.maxDate = new Date(year + 4, month, day + 1).toISOString();
   }
 
+  initializeForm() {
+    this.form = new FormGroup({
+      title: new FormControl(null, {
+        updateOn: 'blur',
+        validators: [Validators.required]
+      }),
+      description: new FormControl(null, {
+        updateOn: 'blur',
+        validators: [Validators.required, Validators.maxLength(200)]
+      }),
+      price: new FormControl(null, {
+        updateOn: 'blur',
+        validators: [Validators.required, Validators.min(100)]
+      }),
+      dateFrom: new FormControl(null, {
+        updateOn: 'blur',
+        validators: [Validators.required]
+      }),
+      dateTo: new FormControl(null, {
+        updateOn: 'blur',
+        validators: [Validators.required]
+      })
+    });
+  }
+
   onCreateOffer() {
-    console.log('Creating offered place...');
+    console.log(this.form);
   }
 }

@@ -5,7 +5,7 @@
     </ion-buttons>
     <ion-title>New Offer</ion-title>
     <ion-buttons slot="primary">
-      <ion-button (click)="onCreateOffer()">
+      <ion-button (click)="onCreateOffer()" [disabled]="!form.valid">
         <ion-icon name="checkmark" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,54 +13,92 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <ion-item>
-          <ion-label position="floating">Title</ion-label>
-          <ion-input
-            type="text"
-            ngModel
-            name="title"
-            autocomplete
-            autocorrect
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <ion-item>
-          <ion-label position="floating">Short Description</ion-label>
-          <ion-textarea rows="3" ngModel name="shortDescription"></ion-textarea>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <ion-item>
-          <ion-label position="floating">Price</ion-label>
-          <ion-input
-            type="number"
-            ngModel
-            name="price"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size-sm="3" offset-sm="3">
-        <ion-item>
-          <ion-label position="floating">Available from</ion-label>
-          <ion-datetime [min]="availableFromMinDate" [max]="maxDate"></ion-datetime>
-        </ion-item>
-      </ion-col>
-      <ion-col size-sm="3">
-        <ion-item>
-          <ion-label position="floating">Available to</ion-label>
-          <ion-datetime [min]="availableToMinDate" [max]="maxDate"></ion-datetime>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <form [formGroup]="form">
+    <ion-grid>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item>
+            <ion-label position="floating">Title</ion-label>
+            <ion-input
+              type="text"
+              formControlName="title"
+              autocomplete
+              autocorrect
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item lines="none" *ngIf="!form.get('title').valid && form.get('title').touched">
+            <ion-label color="danger">Title is required.</ion-label>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item>
+            <ion-label position="floating">Short Description</ion-label>
+            <ion-textarea rows="3" formControlName="description"></ion-textarea>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item lines="none" *ngIf="!form.get('description').valid && form.get('description').touched">
+            <ion-label color="danger">Description must be between 1 and 200 characters.</ion-label>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item>
+            <ion-label position="floating">Price</ion-label>
+            <ion-input type="number" formControlName="price"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item lines="none" *ngIf="!form.get('price').valid && form.get('price').touched">
+            <ion-label color="danger">Price must be more than 0.</ion-label>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="3" offset-sm="3">
+          <ion-item>
+            <ion-label position="floating">Available from</ion-label>
+            <ion-datetime
+              formControlName="dateFrom"
+              [min]="availableFromMinDate"
+              [max]="maxDate"
+            ></ion-datetime>
+          </ion-item>
+        </ion-col>
+        <ion-col size-sm="3">
+          <ion-item>
+            <ion-label position="floating">Available to</ion-label>
+            <ion-datetime
+              formControlName="dateTo"
+              [min]="availableToMinDate"
+              [max]="maxDate"
+            ></ion-datetime>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="3" offset-sm="3">
+          <ion-item lines="none" *ngIf="!form.get('dateFrom').valid && form.get('dateFrom').touched">
+            <ion-label color="danger">Available from is required.</ion-label>
+          </ion-item>
+        </ion-col>
+        <ion-col size-sm="3">
+          <ion-item lines="none" *ngIf="!form.get('dateTo').valid && form.get('dateTo').touched">
+            <ion-label color="danger">Available to is required.</ion-label>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>
