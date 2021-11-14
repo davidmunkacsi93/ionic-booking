@@ -32,7 +32,7 @@
             </ion-item>
             <ion-item
               lines="none"
-              *ngIf="firstNameCtrl.valid && firstNameCtrl.touched"
+              *ngIf="!firstNameCtrl.valid && firstNameCtrl.touched"
             >
               <ion-text color="danger">First name is required.</ion-text>
             </ion-item>
@@ -54,7 +54,7 @@
             </ion-item>
             <ion-item
               lines="none"
-              *ngIf="lastNameCtrl.valid && lastNameCtrl.touched"
+              *ngIf="!lastNameCtrl.valid && lastNameCtrl.touched"
             >
               <ion-text color="danger">Last name is required.</ion-text>
             </ion-item>
@@ -106,7 +106,7 @@
       </ion-row>
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
-          <ion-button color="primary" type="submit" expand="block"
+          <ion-button color="primary" type="submit" expand="block" [disabled]="!f.valid || !areDatesValid()"
             >Book!</ion-button
           >
         </ion-col>
