@@ -77,6 +77,7 @@ export class PlaceDetailPage implements OnInit {
       })
       .then((resultData) => {
         if (resultData.role === 'confirm') {
+          console.log(resultData.data);
         }
       });
   }

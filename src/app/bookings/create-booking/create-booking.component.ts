@@ -46,15 +46,21 @@ export class CreateBookingComponent implements OnInit {
   }
 
   onBookPlace(form: NgForm) {
-    if (!form.valid) {
+    if (!form.valid || !this.areDatesValid()) {
       return;
     }
 
     this.modalCtrl.dismiss(
-      { message: 'This is a dummy message.' },
-      'confirm',
-      this.selectedPlace.id
-    );
+      {
+        bookingData: {
+          firstName: this.form.value['first-name'],
+          lastName: this.form.value['last-name'],
+          guestNumber: this.form.value['guest-number'],
+          startDate: this.form.value['date-from'],
+          endDate: this.form.value['date-to'],
+        },
+      },
+      'confirm');
   }
 
   onCancel() {
