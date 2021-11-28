@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { PlacesService } from 'src/app/places.service';
 import { DateService } from 'src/app/services/date.service';
 
 @Component({
@@ -14,7 +16,11 @@ export class NewOfferPage implements OnInit {
   availableToMinDate: string;
   maxDate: string;
 
-  constructor(private dateService: DateService) {}
+  constructor(
+    private dateService: DateService,
+    private placesService: PlacesService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.initializeDates();
@@ -22,7 +28,8 @@ export class NewOfferPage implements OnInit {
   }
 
   initializeDates() {
-    this.availableFromMinDate = this.dateService.getAvailableFromMinDateISOString();
+    this.availableFromMinDate =
+      this.dateService.getAvailableFromMinDateISOString();
     this.availableToMinDate = this.dateService.getAvailableToMinDateISOString();
     this.maxDate = this.dateService.getMaxDateISOString();
   }
@@ -31,24 +38,24 @@ export class NewOfferPage implements OnInit {
     this.form = new FormGroup({
       title: new FormControl(null, {
         updateOn: 'blur',
-        validators: [Validators.required]
+        validators: [Validators.required],
       }),
       description: new FormControl(null, {
         updateOn: 'blur',
-        validators: [Validators.required, Validators.maxLength(200)]
+        validators: [Validators.required, Validators.maxLength(200)],
       }),
       price: new FormControl(null, {
         updateOn: 'blur',
-        validators: [Validators.required, Validators.min(100)]
+        validators: [Validators.required, Validators.min(100)],
       }),
       dateFrom: new FormControl(null, {
         updateOn: 'blur',
-        validators: [Validators.required]
+        validators: [Validators.required],
       }),
       dateTo: new FormControl(null, {
         updateOn: 'blur',
-        validators: [Validators.required]
-      })
+        validators: [Validators.required],
+      }),
     });
   }
 
@@ -57,6 +64,15 @@ export class NewOfferPage implements OnInit {
       return;
     }
 
-    console.log(this.form);
+    this.placesService.addPlace(
+      this.form.value.title,
+      this.form.value.description,
+      +this.form.value.price,
+      new Date(this.form.value.dateFrom),
+      new Date(this.form.value.dateTo)
+    );
+
+    this.form.reset();
+    this.router.navigate(['/places/tabs/offers']);
   }
 }

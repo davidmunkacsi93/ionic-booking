@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { PlacesService } from 'src/app/places.service';
 import { DateService } from 'src/app/services/date.service';
 import { Place } from '../../places.model';
@@ -11,13 +12,15 @@ import { Place } from '../../places.model';
   templateUrl: './edit-offer.page.html',
   styleUrls: ['./edit-offer.page.scss'],
 })
-export class EditOfferPage implements OnInit {
+export class EditOfferPage implements OnInit, OnDestroy {
   form: FormGroup;
   place: Place;
 
   availableFromMinDate: string;
   availableToMinDate: string;
   maxDate: string;
+
+  private placeSub: Subscription;
 
   constructor(
     private dateService: DateService,
@@ -26,15 +29,23 @@ export class EditOfferPage implements OnInit {
     private navCtrl: NavController
   ) {}
 
+  ngOnDestroy(): void {
+    if (this.placeSub) {
+      this.placeSub.unsubscribe();
+    }
+  }
+
   ngOnInit() {
     this.route.paramMap.subscribe((paramMap) => {
       if (!paramMap.has('placeId')) {
         return;
       }
-      this.place = this.placesService.getPlace(paramMap.get('placeId'));
+      this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
+        this.place = place;
 
-      this.initializeDates();
-      this.initializeForm();
+        this.initializeDates();
+        this.initializeForm();
+      });
     });
   }
 
