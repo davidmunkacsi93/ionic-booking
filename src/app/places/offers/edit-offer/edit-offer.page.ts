@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { LoadingController, NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { PlacesService } from 'src/app/places.service';
 import { DateService } from 'src/app/services/date.service';
@@ -26,7 +26,9 @@ export class EditOfferPage implements OnInit, OnDestroy {
     private dateService: DateService,
     private route: ActivatedRoute,
     private placesService: PlacesService,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private router: Router,
+    private loadingCtrl: LoadingController
   ) {}
 
   ngOnDestroy(): void {
@@ -40,12 +42,14 @@ export class EditOfferPage implements OnInit, OnDestroy {
       if (!paramMap.has('placeId')) {
         return;
       }
-      this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
-        this.place = place;
+      this.placeSub = this.placesService
+        .getPlace(paramMap.get('placeId'))
+        .subscribe((place) => {
+          this.place = place;
 
-        this.initializeDates();
-        this.initializeForm();
-      });
+          this.initializeDates();
+          this.initializeForm();
+        });
     });
   }
 
@@ -85,6 +89,24 @@ export class EditOfferPage implements OnInit, OnDestroy {
     if (!this.form.valid) {
       return;
     }
+
+    this.loadingCtrl.create({
+      message: 'Updating place...'
+    }).then(loadingEl => {
+      loadingEl.present();
+      this.placesService.updatePlace(
+        this.place.id,
+        this.form.value.title,
+        this.form.value.description,
+        this.form.value.price,
+        this.form.value.dateFrom,
+        this.form.value.dateTo
+      ).subscribe(() => {
+        loadingEl.dismiss();
+        this.form.reset();
+        this.router.navigate(['/places/tabs/offers']);
+      });
+    });
   }
 
   onBackButtonClicked() {
