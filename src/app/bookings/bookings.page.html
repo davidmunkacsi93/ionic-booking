@@ -12,18 +12,27 @@
     <ion-row>
       <ion-col size-md="6" offset-md="3">
         <ion-list>
-          <ion-item-sliding *ngFor="let booking of loadedBookings" #slidingBooking>
+          <ion-item-sliding
+            *ngFor="let booking of loadedBookings"
+            #slidingBooking
+          >
             <ion-item>
               <ion-label
-                ><h5>{{booking.placeTitle}}</h5>
+                ><h5>
+                  {{booking.placeTitle}} for {{booking.firstName}}
+                  {{booking.lastName}}
+                </h5>
                 <p>Guests: {{booking.guestNumber}}</p>
               </ion-label>
-              <ion-item-options>
-                <ion-item-option>
-                  <ion-icon name="trash" color="danger" slot="icon-only" (click)="onCancelBooking(booking.id, slidingBooking)"></ion-icon>
-                </ion-item-option>
-              </ion-item-options>
             </ion-item>
+            <ion-item-options>
+              <ion-item-option
+                color="danger"
+                (click)="onCancelBooking(booking.id, slidingBooking)"
+              >
+                <ion-icon name="trash" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
           </ion-item-sliding>
         </ion-list>
       </ion-col>
