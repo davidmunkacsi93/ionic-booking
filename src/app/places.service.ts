@@ -1,8 +1,9 @@
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { take, map, tap, delay } from 'rxjs/operators';
+import { take, map, tap, delay, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
 import { Place } from './places/places.model';
 
@@ -10,6 +11,8 @@ import { Place } from './places/places.model';
   providedIn: 'root',
 })
 export class PlacesService {
+  private dbUrl =
+    'https://ionic-booking-d33eb-default-rtdb.europe-west1.firebasedatabase.app/';
   private _places = new BehaviorSubject<Place[]>([
     new Place(
       'p1',
@@ -44,7 +47,7 @@ export class PlacesService {
     ),
   ]);
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private http: HttpClient) {}
 
   get places() {
     return this._places.asObservable();
@@ -78,13 +81,23 @@ export class PlacesService {
       this.authService.userId
     );
 
-    return this.places.pipe(
-      take(1),
-      delay(1000),
-      tap((places) => {
-        this._places.next(places.concat(newPlace));
+    let generatedId;
+    return this.http
+      .post<{ name: string }>(this.dbUrl + 'offered-places.json', {
+        ...newPlace,
+        id: null,
       })
-    );
+      .pipe(
+        switchMap((resData) => {
+          generatedId = resData.name;
+          return this.places;
+        }),
+        take(1),
+        tap((places) => {
+          newPlace.id = generatedId;
+          this._places.next(places.concat(newPlace));
+        })
+      );
   }
 
   updatePlace(
