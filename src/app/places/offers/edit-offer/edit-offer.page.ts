@@ -99,8 +99,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
         this.form.value.title,
         this.form.value.description,
         this.form.value.price,
-        this.form.value.dateFrom,
-        this.form.value.dateTo
+        new Date(this.form.value.dateFrom),
+        new Date(this.form.value.dateTo)
       ).subscribe(() => {
         loadingEl.dismiss();
         this.form.reset();
