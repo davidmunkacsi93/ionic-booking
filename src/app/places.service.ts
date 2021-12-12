@@ -22,8 +22,8 @@ interface PlaceData {
 })
 export class PlacesService {
   private dbUrl =
-    'https://ionic-booking-d33eb-default-rtdb.europe-west1.firebasedatabase.app/';
-  private offeredPlacesUrl = this.dbUrl + 'offered-places.json';
+    'https://ionic-booking-d33eb-default-rtdb.europe-west1.firebasedatabase.app';
+  private offeredPlacesUrl = this.dbUrl + '/offered-places.json';
   private $places = new BehaviorSubject<Place[]>([]);
 
   constructor(private authService: AuthService, private http: HttpClient) {}
@@ -65,7 +65,7 @@ export class PlacesService {
 
           return places;
         }),
-        tap(places => {
+        tap((places) => {
           this.$places.next(places);
         })
       );
@@ -119,19 +119,15 @@ export class PlacesService {
     dateFrom: Date,
     dateTo: Date
   ) {
-    return this.places.pipe(
+    let updatedPlaces: Place[];
+    return this.$places.pipe(
       take(1),
-      delay(1000),
-      tap((places) => {
+      switchMap((places) => {
         const updatedPlaceIndex = places.findIndex(
           (place) => place.id === placeId
         );
 
-        if (!updatedPlaceIndex) {
-          return;
-        }
-
-        const updatedPlaces = [...places];
+        updatedPlaces = [...places];
         const oldPlace = updatedPlaces[updatedPlaceIndex];
 
         updatedPlaces[updatedPlaceIndex] = new Place(
@@ -145,6 +141,12 @@ export class PlacesService {
           oldPlace.userId
         );
 
+        return this.http.put(`${this.dbUrl}/offered-places/${placeId}.json`, {
+          ...updatedPlaces[updatedPlaceIndex],
+          id: null,
+        });
+      }),
+      tap(() => {
         this.$places.next(updatedPlaces);
       })
     );
