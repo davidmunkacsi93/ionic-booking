@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ActionSheetController,
+  AlertController,
   LoadingController,
   ModalController,
   NavController,
@@ -21,6 +22,7 @@ import { Place } from '../../places.model';
 export class PlaceDetailPage implements OnInit, OnDestroy {
   place: Place;
   isBookable = false;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -31,7 +33,9 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private actionSheetController: ActionSheetController,
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertCtrl: AlertController,
+    private router: Router
   ) {}
 
   ngOnDestroy(): void {
@@ -47,12 +51,32 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return;
       }
 
+      this.isLoading = true;
       this.placeSub = this.placesService
         .getPlace(paramMap.get('placeId'))
-        .subscribe((place) => {
-          this.place = place;
-          this.isBookable = place.userId !== this.authService.userId;
-        });
+        .subscribe(
+          (place) => {
+            this.place = place;
+            this.isBookable = place.userId !== this.authService.userId;
+            this.isLoading = false;
+          },
+          (error) => {
+            this.alertCtrl
+              .create({
+                header: 'An error occured!',
+                message: 'Could not load place.',
+                buttons: [
+                  {
+                    text: 'Okay',
+                    handler: () => {
+                      this.router.navigate(['/places/tabs/discover']);
+                    },
+                  },
+                ],
+              })
+              .then((alertEl) => alertEl.present());
+          }
+        );
     });
   }
 
@@ -105,20 +129,22 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
               loadingEl.present();
               const bookingData = resultData.data.bookingData;
 
-              this.bookingService.addBooking(
-                this.place.id,
-                this.place.title,
-                this.place.imageUrl,
-                bookingData.firstName,
-                bookingData.lastName,
-                bookingData.guestNumber,
-                bookingData.startDate,
-                bookingData.endDate
-              ).subscribe(() => {
-                loadingEl.dismiss();
-              });
+              this.bookingService
+                .addBooking(
+                  this.place.id,
+                  this.place.title,
+                  this.place.imageUrl,
+                  bookingData.firstName,
+                  bookingData.lastName,
+                  bookingData.guestNumber,
+                  bookingData.startDate,
+                  bookingData.endDate
+                )
+                .subscribe(() => {
+                  loadingEl.dismiss();
+                });
             });
-          }
+        }
       });
   }
 }
