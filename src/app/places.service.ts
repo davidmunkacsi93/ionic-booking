@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { take, map, tap, delay, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, of } from 'rxjs';
+import { take, map, tap, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
 import { Place } from './places/places.model';
 
@@ -36,16 +36,19 @@ export class PlacesService {
     return this.http
       .get<PlaceData>(`${this.dbUrl}/offered-places/${id}.json`)
       .pipe(
-        map((resData) => new Place (
-            id,
-            resData.title,
-            resData.description,
-            resData.imageUrl,
-            resData.price,
-            new Date(resData.dateFrom),
-            new Date(resData.dateTo),
-            resData.userId
-          ))
+        map(
+          (resData) =>
+            new Place(
+              id,
+              resData.title,
+              resData.description,
+              resData.imageUrl,
+              resData.price,
+              new Date(resData.dateFrom),
+              new Date(resData.dateTo),
+              resData.userId
+            )
+        )
       );
   }
 
@@ -132,6 +135,13 @@ export class PlacesService {
     let updatedPlaces: Place[];
     return this.$places.pipe(
       take(1),
+      switchMap((places) => {
+        if (!places || places.length <= 0) {
+          return this.fetchPlaces();
+        } else {
+          return of(places);
+        }
+      }),
       switchMap((places) => {
         const updatedPlaceIndex = places.findIndex(
           (place) => place.id === placeId
