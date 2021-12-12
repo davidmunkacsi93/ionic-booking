@@ -12,6 +12,7 @@ import { Place } from '../../places.model';
 })
 export class OfferBookingsPage implements OnInit, OnDestroy {
   place: Place;
+  placeId: string;
   private placeSub: Subscription;
 
   constructor(
@@ -33,6 +34,7 @@ export class OfferBookingsPage implements OnInit, OnDestroy {
         return;
       }
 
+      this.placeId = paramMap.get('placeId');
       this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
         this.place = place;
       });

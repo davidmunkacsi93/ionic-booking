@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/places/tabs/offers"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{place.title}}</ion-title>
+    <ion-title>{{place?.title}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,6 +11,6 @@
   <ion-button
     margin
     color="primary"
-    [routerLink]="['/', 'places', 'tabs', 'offers', 'edit', place.id]"
+    [routerLink]="['/', 'places', 'tabs', 'offers', 'edit', placeId]"
   >Edit</ion-button>
 </ion-content>
