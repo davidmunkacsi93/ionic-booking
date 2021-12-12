@@ -15,11 +15,13 @@ import { Place } from '../../places.model';
 export class EditOfferPage implements OnInit, OnDestroy {
   form: FormGroup;
   place: Place;
+  placeId: string;
 
   availableFromMinDate: string;
   availableToMinDate: string;
   maxDate: string;
 
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -42,6 +44,9 @@ export class EditOfferPage implements OnInit, OnDestroy {
       if (!paramMap.has('placeId')) {
         return;
       }
+
+      this.placeId = paramMap.get('placeId');
+      this.isLoading = true;
       this.placeSub = this.placesService
         .getPlace(paramMap.get('placeId'))
         .subscribe((place) => {
@@ -83,6 +88,7 @@ export class EditOfferPage implements OnInit, OnDestroy {
         validators: [Validators.required],
       }),
     });
+    this.isLoading = false;
   }
 
   onUpdateOffer() {

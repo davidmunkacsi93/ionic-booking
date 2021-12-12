@@ -33,10 +33,20 @@ export class PlacesService {
   }
 
   getPlace(id: string) {
-    return this.places.pipe(
-      take(1),
-      map((places) => ({ ...places.find((p) => p.id === id) }))
-    );
+    return this.http
+      .get<PlaceData>(`${this.dbUrl}/offered-places/${id}.json`)
+      .pipe(
+        map((resData) => new Place (
+            id,
+            resData.title,
+            resData.description,
+            resData.imageUrl,
+            resData.price,
+            new Date(resData.dateFrom),
+            new Date(resData.dateTo),
+            resData.userId
+          ))
+      );
   }
 
   fetchPlaces() {
