@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, of } from 'rxjs';
 import { take, map, tap, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
+import { PlaceLocation } from './places/location.model';
 import { Place } from './places/places.model';
 
 interface PlaceData {
@@ -15,6 +16,7 @@ interface PlaceData {
   price: number;
   title: string;
   userId: string;
+  location: PlaceLocation;
 }
 
 @Injectable({
@@ -46,7 +48,8 @@ export class PlacesService {
               resData.price,
               new Date(resData.dateFrom),
               new Date(resData.dateTo),
-              resData.userId
+              resData.userId,
+              resData.location
             )
         )
       );
@@ -70,7 +73,8 @@ export class PlacesService {
                   placeByKey.price,
                   new Date(placeByKey.dateFrom),
                   new Date(placeByKey.dateTo),
-                  placeByKey.userId
+                  placeByKey.userId,
+                  placeByKey.location
                 )
               );
             }
@@ -89,7 +93,8 @@ export class PlacesService {
     description: string,
     price: number,
     dateFrom: Date,
-    dateTo: Date
+    dateTo: Date,
+    location: PlaceLocation
   ) {
     const fixImageUrl = 'https://thumbs.nestseekers.com/JUlRoXyPxJK9R5XG.jpg';
     const randomUserId = Math.random().toString();
@@ -102,7 +107,8 @@ export class PlacesService {
       price,
       dateFrom,
       dateTo,
-      this.authService.userId
+      this.authService.userId,
+      location
     );
 
     let generatedId;
@@ -158,7 +164,8 @@ export class PlacesService {
           price,
           dateFrom,
           dateTo,
-          oldPlace.userId
+          oldPlace.userId,
+          oldPlace.location
         );
 
         return this.http.put(`${this.dbUrl}/offered-places/${placeId}.json`, {

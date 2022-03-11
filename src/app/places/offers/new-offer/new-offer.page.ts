@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import { PlacesService } from 'src/app/places.service';
 import { DateService } from 'src/app/services/date.service';
+import { PlaceLocation } from '../../location.model';
 
 @Component({
   selector: 'app-new-offer',
@@ -58,6 +59,9 @@ export class NewOfferPage implements OnInit {
         updateOn: 'blur',
         validators: [Validators.required],
       }),
+      location: new FormControl(null, {
+        validators: [Validators.required],
+      }),
     });
   }
 
@@ -66,22 +70,31 @@ export class NewOfferPage implements OnInit {
       return;
     }
 
-    this.loadingCtrl.create({
-      message: 'Creating place...'
-    }).then(loadingEl => {
-      loadingEl.present();
+    this.loadingCtrl
+      .create({
+        message: 'Creating place...',
+      })
+      .then((loadingEl) => {
+        loadingEl.present();
 
-      this.placesService.addPlace(
-        this.form.value.title,
-        this.form.value.description,
-        +this.form.value.price,
-        new Date(this.form.value.dateFrom),
-        new Date(this.form.value.dateTo)
-      ).subscribe(() => {
-        this.form.reset();
-        this.router.navigate(['/places/tabs/offers']);
-        loadingEl.dismiss();
+        this.placesService
+          .addPlace(
+            this.form.value.title,
+            this.form.value.description,
+            +this.form.value.price,
+            new Date(this.form.value.dateFrom),
+            new Date(this.form.value.dateTo),
+            this.form.value.location
+          )
+          .subscribe(() => {
+            this.form.reset();
+            this.router.navigate(['/places/tabs/offers']);
+            loadingEl.dismiss();
+          });
       });
-    });
+  }
+
+  onLocationPicked(location: PlaceLocation) {
+    this.form.patchValue({ location });
   }
 }
