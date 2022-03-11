@@ -12,6 +12,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { BookingService } from 'src/app/bookings/booking.service';
 import { CreateBookingComponent } from 'src/app/bookings/create-booking/create-booking.component';
 import { PlacesService } from 'src/app/places.service';
+import { MapModalComponent } from 'src/app/shared/map-modal/map-modal.component';
 import { Place } from '../../places.model';
 
 @Component({
@@ -106,6 +107,12 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
       .then((actionSheetEl) => {
         actionSheetEl.present();
       });
+  }
+
+  onShowFullMap() {
+    this.modalCtrl.create({ component: MapModalComponent }).then(modalEl => {
+      modalEl.present();
+    });
   }
 
   openBookingModal(mode: 'select' | 'random') {
