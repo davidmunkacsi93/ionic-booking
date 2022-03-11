@@ -110,9 +110,22 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
   }
 
   onShowFullMap() {
-    this.modalCtrl.create({ component: MapModalComponent }).then(modalEl => {
-      modalEl.present();
-    });
+    this.modalCtrl
+      .create({
+        component: MapModalComponent,
+        componentProps: {
+          center: {
+            lat: this.place.location.lat,
+            lng: this.place.location.lng,
+          },
+          selectable: false,
+          closeButtonText: 'Close',
+          title: this.place.location.address,
+        },
+      })
+      .then((modalEl) => {
+        modalEl.present();
+      });
   }
 
   openBookingModal(mode: 'select' | 'random') {
