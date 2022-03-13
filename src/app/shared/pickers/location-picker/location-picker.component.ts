@@ -59,30 +59,36 @@ export class LocationPickerComponent implements OnInit {
   }
 
   private locateUser() {
-    if (Capacitor.isPluginAvailable('Geolocation')) {
-      this.showErrorAlert();
+    if (!Capacitor.isPluginAvailable('Geolocation')) {
+      this.showErrorAlert('Plugin not available.');
       return;
     }
 
     Geolocation.getCurrentPosition()
       .then((geoPosition) => {
+        this.isLoading = true;
+
         const coordinates: Coordinates = {
           lat: geoPosition.coords.latitude,
           lng: geoPosition.coords.longitude,
         };
         console.log(coordinates);
+        this.createPlace(coordinates.lat, coordinates.lng);
+
+        this.isLoading = false;
       })
       .catch((err) => {
         console.log(err);
-        this.showErrorAlert();
+        this.showErrorAlert(err);
+        this.isLoading = false;
       });
   }
 
-  private showErrorAlert() {
+  private showErrorAlert(message: string) {
     this.alertCtrl
       .create({
         header: 'Could not fetch location.',
-        message: 'Please use the map to pick a location.',
+        message: message ?? 'Please use the map to pick a location.',
       })
       .then((alertEl) => {
         alertEl.present();
@@ -96,32 +102,42 @@ export class LocationPickerComponent implements OnInit {
           return;
         }
 
-        const pickedLocation: PlaceLocation = {
+        const coordinates: Coordinates = {
           lat: modalData.data.lat,
-          lng: modalData.data.lng,
-          address: null,
-          staticMapImageUrl: null,
+          lng: modalData.data.lng
         };
-        this.isLoading = true;
-
-        this.getAddress(modalData.data.lat, modalData.data.lng)
-          .pipe(
-            switchMap((address) => {
-              pickedLocation.address = address;
-              return of(
-                this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14)
-              );
-            })
-          )
-          .subscribe((staticMapImageUrl) => {
-            pickedLocation.staticMapImageUrl = staticMapImageUrl;
-            this.selectedLocationImage = staticMapImageUrl;
-            this.isLoading = false;
-            this.locationPick.emit(pickedLocation);
-          });
+        this.createPlace(coordinates.lat, coordinates.lng);
       });
+
       modalEl.present();
     });
+  }
+
+  private createPlace(lat: number, lng: number) {
+    this.isLoading = true;
+
+    const pickedLocation: PlaceLocation = {
+      lat,
+      lng,
+      address: null,
+      staticMapImageUrl: null,
+    };
+
+    this.getAddress(lat, lng)
+      .pipe(
+        switchMap((address) => {
+          pickedLocation.address = address;
+          return of(
+            this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14)
+          );
+        })
+      )
+      .subscribe((staticMapImageUrl) => {
+        pickedLocation.staticMapImageUrl = staticMapImageUrl;
+        this.selectedLocationImage = staticMapImageUrl;
+        this.isLoading = false;
+        this.locationPick.emit(pickedLocation);
+      });
   }
 
   private getAddress(lat: number, lng: number) {
