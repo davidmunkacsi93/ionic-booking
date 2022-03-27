@@ -89,7 +89,6 @@ export class PlacesService {
   }
 
   uploadImage(image: File) {
-    console.log(image);
     const uploadData = new FormData();
     uploadData.append('image', image);
 
