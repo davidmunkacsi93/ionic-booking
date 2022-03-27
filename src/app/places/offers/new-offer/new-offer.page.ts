@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
+import { switchMap } from 'rxjs/operators';
 import { PlacesService } from 'src/app/places.service';
 import { DateService } from 'src/app/services/date.service';
 import { PlaceLocation } from '../../location.model';
@@ -79,14 +80,18 @@ export class NewOfferPage implements OnInit {
         loadingEl.present();
 
         this.placesService
-          .addPlace(
-            this.form.value.title,
-            this.form.value.description,
-            +this.form.value.price,
-            new Date(this.form.value.dateFrom),
-            new Date(this.form.value.dateTo),
-            this.form.value.location
-          )
+          .uploadImage(this.form.get('image').value)
+          .pipe(
+            switchMap(uploadResponse => this.placesService
+            .addPlace(
+              this.form.value.title,
+              this.form.value.description,
+              +this.form.value.price,
+              new Date(this.form.value.dateFrom),
+              new Date(this.form.value.dateTo),
+              this.form.value.location,
+              uploadResponse.imageUrl
+            )))
           .subscribe(() => {
             this.form.reset();
             this.router.navigate(['/places/tabs/offers']);
@@ -104,8 +109,8 @@ export class NewOfferPage implements OnInit {
 
     if (typeof imageData === 'string') {
       try {
-        imageFile = imageData.replace('data:image/jpeg;base64,', '');
-        this.base64toBlob(imageFile, 'image/jpeg');
+        const imageFileWithoutPrefix = imageData.replace('data:image/jpeg;base64,', '');
+        imageFile = this.base64toBlob(imageFileWithoutPrefix, 'image/jpeg');
       } catch (error) {
         console.log(error);
         return;

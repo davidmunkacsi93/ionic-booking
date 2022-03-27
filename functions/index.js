@@ -40,7 +40,7 @@ exports.storeImage = functions.https.onRequest((req, res) => {
 
       console.log(uploadData.type);
       return storage
-        .bucket('YOUR_FIREBASE_PROJECT_ID.appspot.com')
+        .bucket('ionic-booking-d33eb.appspot.com')
         .upload(uploadData.filePath, {
           uploadType: 'media',
           destination: imagePath,
@@ -56,7 +56,7 @@ exports.storeImage = functions.https.onRequest((req, res) => {
           return res.status(201).json({
             imageUrl:
               'https://firebasestorage.googleapis.com/v0/b/' +
-              storage.bucket('YOUR_FIREBASE_PROJECT_ID.appspot.com').name +
+              storage.bucket('ionic-booking-d33eb.appspot.com').name +
               '/o/' +
               encodeURIComponent(imagePath) +
               '?alt=media&token=' +

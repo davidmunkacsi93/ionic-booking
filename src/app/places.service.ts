@@ -88,22 +88,35 @@ export class PlacesService {
       );
   }
 
+  uploadImage(image: File) {
+    console.log(image);
+    const uploadData = new FormData();
+    uploadData.append('image', image);
+
+    const storeImageEndpointUrl =
+      'https://us-central1-ionic-booking-d33eb.cloudfunctions.net/storeImage';
+    return this.http.post<{ imageUrl: string; imagePath: string }>(
+      storeImageEndpointUrl,
+      uploadData
+    );
+  }
+
   addPlace(
     title: string,
     description: string,
     price: number,
     dateFrom: Date,
     dateTo: Date,
-    location: PlaceLocation
+    location: PlaceLocation,
+    imageUrl: string
   ) {
-    const fixImageUrl = 'https://thumbs.nestseekers.com/JUlRoXyPxJK9R5XG.jpg';
     const randomUserId = Math.random().toString();
 
     const newPlace = new Place(
       randomUserId,
       title,
       description,
-      fixImageUrl,
+      imageUrl,
       price,
       dateFrom,
       dateTo,
