@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Platform } from '@ionic/angular';
@@ -11,24 +11,21 @@ import { Platform } from '@ionic/angular';
 export class ImagePickerComponent implements OnInit {
   @ViewChild('filePicker') filePickerRef: ElementRef<HTMLInputElement>;
   @Output() imagePick = new EventEmitter<string | File>();
+  @Input() showPreview = false;
+
   selectedImage: string;
   usePicker = false;
 
   constructor(private platform: Platform) {}
 
   ngOnInit() {
-    console.log(`Mobile: ${this.platform.is('mobile')}`);
-    console.log(`Hybrid: ${this.platform.is('hybrid')}`);
-    console.log(`iOS: ${this.platform.is('ios')}`);
-    console.log(`Android: ${this.platform.is('android')}`);
-    console.log(`Desktop: ${this.platform.is('desktop')}`);
     if ((this.platform.is('mobile') && !this.platform.is('hybrid')) || this.platform.is('desktop')) {
       this.usePicker = true;
     }
   }
 
   onPickImage() {
-    if (!Capacitor.isPluginAvailable('Camera') || this.usePicker) {
+    if (!Capacitor.isPluginAvailable('Camera')) {
       this.filePickerRef.nativeElement.click();
       return;
     }
@@ -42,12 +39,14 @@ export class ImagePickerComponent implements OnInit {
       resultType: CameraResultType.DataUrl,
     })
       .then((image) => {
-        console.log(image);
         this.selectedImage = image.dataUrl;
         this.imagePick.emit(image.dataUrl);
       })
       .catch((error) => {
         console.log(error);
+        if (this.usePicker) {
+          this.filePickerRef.nativeElement.click();
+        }
         return false;
       });
   }

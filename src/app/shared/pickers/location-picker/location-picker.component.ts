@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
   ActionSheetController,
   AlertController,
@@ -21,6 +21,8 @@ import { Geolocation } from '@capacitor/geolocation';
 })
 export class LocationPickerComponent implements OnInit {
   @Output() locationPick = new EventEmitter<PlaceLocation>();
+  @Input() showPreview = false;
+
   selectedLocationImage: string;
   isLoading = false;
 
@@ -72,7 +74,6 @@ export class LocationPickerComponent implements OnInit {
           lat: geoPosition.coords.latitude,
           lng: geoPosition.coords.longitude,
         };
-        console.log(coordinates);
         this.createPlace(coordinates.lat, coordinates.lng);
 
         this.isLoading = false;

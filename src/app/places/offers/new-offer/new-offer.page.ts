@@ -104,7 +104,7 @@ export class NewOfferPage implements OnInit {
 
     if (typeof imageData === 'string') {
       try {
-        imageFile = imageData.replace('data:image/jpeg;base64', '');
+        imageFile = imageData.replace('data:image/jpeg;base64,', '');
         this.base64toBlob(imageFile, 'image/jpeg');
       } catch (error) {
         console.log(error);
