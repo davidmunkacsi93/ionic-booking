@@ -56,36 +56,35 @@ export class PlacesService {
   }
 
   fetchPlaces() {
-    return this.http
-      .get<{ [key: string]: PlaceData }>(this.offeredPlacesUrl)
-      .pipe(
-        map((resData) => {
-          const places = [];
-          for (const key in resData) {
-            if (resData.hasOwnProperty(key)) {
-              const placeByKey = resData[key];
-              places.push(
-                new Place(
-                  key,
-                  placeByKey.title,
-                  placeByKey.description,
-                  placeByKey.imageUrl,
-                  placeByKey.price,
-                  new Date(placeByKey.dateFrom),
-                  new Date(placeByKey.dateTo),
-                  placeByKey.userId,
-                  placeByKey.location
-                )
-              );
-            }
+    return this.authService.token.pipe(
+      switchMap((token) => this.http.get<{ [key: string]: PlaceData }>(`${this.offeredPlacesUrl}?auth=${token}`)),
+      map((resData) => {
+        const places = [];
+        for (const key in resData) {
+          if (resData.hasOwnProperty(key)) {
+            const placeByKey = resData[key];
+            places.push(
+              new Place(
+                key,
+                placeByKey.title,
+                placeByKey.description,
+                placeByKey.imageUrl,
+                placeByKey.price,
+                new Date(placeByKey.dateFrom),
+                new Date(placeByKey.dateTo),
+                placeByKey.userId,
+                placeByKey.location
+              )
+            );
           }
+        }
 
-          return places;
-        }),
-        tap((places) => {
-          this.$places.next(places);
-        })
-      );
+        return places;
+      }),
+      tap((places) => {
+        this.$places.next(places);
+      })
+    );
   }
 
   uploadImage(image: File) {
