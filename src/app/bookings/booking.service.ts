@@ -69,7 +69,7 @@ export class BookingService {
           );
         }
       }),
-      switchMap(resData => {
+      switchMap((resData) => {
         generatedId = resData.name;
         return this.bookings;
       }),
@@ -92,38 +92,43 @@ export class BookingService {
   }
 
   fetchBookings() {
-    return this.http
-      .get<{ [key: string]: BookingData }>(
-        `${this.dbUrl}/bookings.json?orderBy="userId"&equalTo="${this.authService.userId}"`
-      )
-      .pipe(
-        map((bookingData) => {
-          const bookings = [];
-          for (const key in bookingData) {
-            if (bookingData.hasOwnProperty(key)) {
-              const bookingByKey = bookingData[key];
-              bookings.push(
-                new Booking(
-                  key,
-                  bookingByKey.placeId,
-                  bookingByKey.userId,
-                  bookingByKey.placeTitle,
-                  bookingByKey.placeImage,
-                  bookingByKey.firstName,
-                  bookingByKey.lastName,
-                  bookingByKey.guestNumber,
-                  new Date(bookingByKey.bookedFrom),
-                  new Date(bookingByKey.bookedTo)
-                )
-              );
-            }
-          }
+    return this.authService.userId.pipe(
+      switchMap((userId) => {
+        if (!userId) {
+          throw new Error('No user found.');
+        }
 
-          return bookings;
-        }),
-        tap((bookings) => {
-          this.$bookings.next(bookings);
-        })
-      );
+        return this.http.get<{ [key: string]: BookingData }>(
+          `${this.dbUrl}/bookings.json?orderBy="userId"&equalTo="${userId}"`
+        );
+      }),
+      map((bookingData) => {
+        const bookings = [];
+        for (const key in bookingData) {
+          if (bookingData.hasOwnProperty(key)) {
+            const bookingByKey = bookingData[key];
+            bookings.push(
+              new Booking(
+                key,
+                bookingByKey.placeId,
+                bookingByKey.userId,
+                bookingByKey.placeTitle,
+                bookingByKey.placeImage,
+                bookingByKey.firstName,
+                bookingByKey.lastName,
+                bookingByKey.guestNumber,
+                new Date(bookingByKey.bookedFrom),
+                new Date(bookingByKey.bookedTo)
+              )
+            );
+          }
+        }
+
+        return bookings;
+      }),
+      tap((bookings) => {
+        this.$bookings.next(bookings);
+      })
+    );
   }
 }
