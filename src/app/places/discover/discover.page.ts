@@ -58,11 +58,13 @@ export class DiscoverPage implements OnInit, OnDestroy {
   applyFilter(filter: string) {
     this.filter = filter;
 
-    this.authService.userId.pipe(take(1)).subscribe(userId => {
+    this.authService.userId.pipe(take(1)).subscribe((userId) => {
       if (filter === 'all') {
         this.relevantPlaces = this.loadedPlaces;
       } else {
-        this.relevantPlaces = this.loadedPlaces.filter(place => place.userId !== userId);
+        this.relevantPlaces = this.loadedPlaces.filter(
+          (place) => place.userId !== userId
+        );
       }
 
       this.listedLoadedPlaces = this.relevantPlaces.slice(1);
