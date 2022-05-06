@@ -35,29 +35,38 @@ export class PlacesService {
   }
 
   getPlace(id: string) {
-    return this.http
-      .get<PlaceData>(`${this.dbUrl}/offered-places/${id}.json`)
-      .pipe(
-        map(
-          (resData) =>
-            new Place(
-              id,
-              resData.title,
-              resData.description,
-              resData.imageUrl,
-              resData.price,
-              new Date(resData.dateFrom),
-              new Date(resData.dateTo),
-              resData.userId,
-              resData.location
-            )
+    return this.authService.token.pipe(
+      take(1),
+      switchMap((token) =>
+        this.http.get<PlaceData>(
+          `${this.dbUrl}/offered-places/${id}.json?auth=${token}`
         )
-      );
+      ),
+      map(
+        (resData) =>
+          new Place(
+            id,
+            resData.title,
+            resData.description,
+            resData.imageUrl,
+            resData.price,
+            new Date(resData.dateFrom),
+            new Date(resData.dateTo),
+            resData.userId,
+            resData.location
+          )
+      )
+    );
   }
 
   fetchPlaces() {
     return this.authService.token.pipe(
-      switchMap((token) => this.http.get<{ [key: string]: PlaceData }>(`${this.offeredPlacesUrl}?auth=${token}`)),
+      take(1),
+      switchMap((token) =>
+        this.http.get<{ [key: string]: PlaceData }>(
+          `${this.offeredPlacesUrl}?auth=${token}`
+        )
+      ),
       map((resData) => {
         const places = [];
         for (const key in resData) {
@@ -91,11 +100,18 @@ export class PlacesService {
     const uploadData = new FormData();
     uploadData.append('image', image);
 
-    const storeImageEndpointUrl =
-      'https://us-central1-ionic-booking-d33eb.cloudfunctions.net/storeImage';
-    return this.http.post<{ imageUrl: string; imagePath: string }>(
-      storeImageEndpointUrl,
-      uploadData
+    return this.authService.token.pipe(
+      take(1),
+      switchMap((token) => {
+        const storeImageEndpointUrl =
+          'https://us-central1-ionic-booking-d33eb.cloudfunctions.net/storeImage';
+        return this.http.post<{ imageUrl: string; imagePath: string }>(
+          storeImageEndpointUrl,
+          uploadData,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          { headers: { Authorization: 'Bearer ' + token } }
+        );
+      })
     );
   }
 
@@ -111,11 +127,16 @@ export class PlacesService {
     const randomUserId = Math.random().toString();
     let newPlace: Place;
     let generatedId: string;
+    let fetchedUserId: string;
 
     return this.authService.userId.pipe(
       take(1),
       switchMap((userId) => {
-        if (!userId) {
+        fetchedUserId = userId;
+        return this.authService.token;
+      }),
+      switchMap((token) => {
+        if (!fetchedUserId) {
           throw new Error('No user found!');
         }
 
@@ -127,14 +148,17 @@ export class PlacesService {
           price,
           dateFrom,
           dateTo,
-          userId,
+          fetchedUserId,
           location
         );
 
-        return this.http.post<{ name: string }>(this.offeredPlacesUrl, {
-          ...newPlace,
-          id: null,
-        });
+        return this.http.post<{ name: string }>(
+          `${this.offeredPlacesUrl}?auth=${token}`,
+          {
+            ...newPlace,
+            id: null,
+          }
+        );
       }),
       switchMap((resData) => {
         generatedId = resData.name;
@@ -157,8 +181,14 @@ export class PlacesService {
     dateTo: Date
   ) {
     let updatedPlaces: Place[];
-    return this.$places.pipe(
+    let fetchedToken: string;
+
+    return this.authService.token.pipe(
       take(1),
+      switchMap((token) => {
+        fetchedToken = token;
+        return this.places;
+      }),
       switchMap((places) => {
         if (!places || places.length <= 0) {
           return this.fetchPlaces();
@@ -186,7 +216,7 @@ export class PlacesService {
           oldPlace.location
         );
 
-        return this.http.put(`${this.dbUrl}/offered-places/${placeId}.json`, {
+        return this.http.put(`${this.dbUrl}/offered-places/${placeId}.json?auth=${fetchedToken}`, {
           ...updatedPlaces[updatedPlaceIndex],
           id: null,
         });
