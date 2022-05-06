@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular';
 import { SegmentChangeEventDetail } from '@ionic/core';
 import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
 import { PlacesService } from 'src/app/places.service';
 import { Place } from '../places.model';
@@ -57,12 +58,14 @@ export class DiscoverPage implements OnInit, OnDestroy {
   applyFilter(filter: string) {
     this.filter = filter;
 
-    if (filter === 'all') {
-      this.relevantPlaces = this.loadedPlaces;
-    } else {
-      this.relevantPlaces = this.loadedPlaces.filter(place => place.userId !== this.authService.userId);
-    }
+    this.authService.userId.pipe(take(1)).subscribe(userId => {
+      if (filter === 'all') {
+        this.relevantPlaces = this.loadedPlaces;
+      } else {
+        this.relevantPlaces = this.loadedPlaces.filter(place => place.userId !== userId);
+      }
 
-    this.listedLoadedPlaces = this.relevantPlaces.slice(1);
+      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
+    });
   }
 }
