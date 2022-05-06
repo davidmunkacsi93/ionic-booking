@@ -39,47 +39,56 @@ export class BookingService {
     dateFrom: Date,
     dateTo: Date
   ) {
-    const newBooking = new Booking(
-      Math.random().toString(),
-      placeId,
-      this.authService.userId,
-      placeTitle,
-      placeImage,
-      firstName,
-      lastName,
-      guestNumber,
-      dateFrom,
-      dateTo
-    );
-
     let generatedId: string;
-    return this.http
-      .post<{ name: string }>(`${this.dbUrl}/bookings.json`, {
-        ...newBooking,
-        id: null,
+    let newBooking: Booking;
+    return this.authService.userId.pipe(
+      take(1),
+      switchMap((userId) => {
+        if (!userId) {
+          throw new Error('No user id found!');
+        } else {
+          newBooking = new Booking(
+            Math.random().toString(),
+            placeId,
+            userId,
+            placeTitle,
+            placeImage,
+            firstName,
+            lastName,
+            guestNumber,
+            dateFrom,
+            dateTo
+          );
+
+          return this.http.post<{ name: string }>(
+            `${this.dbUrl}/bookings.json`,
+            {
+              ...newBooking,
+              id: null,
+            }
+          );
+        }
+      }),
+      switchMap(resData => {
+        generatedId = resData.name;
+        return this.bookings;
+      }),
+      take(1),
+      tap((bookings) => {
+        newBooking.id = generatedId;
+        this.$bookings.next(bookings.concat(newBooking));
       })
-      .pipe(
-        switchMap((resData) => {
-          generatedId = resData.name;
-          return this.bookings;
-        }),
-        take(1),
-        tap((bookings) => {
-          newBooking.id = generatedId;
-          this.$bookings.next(bookings.concat(newBooking));
-        })
-      );
+    );
   }
 
   cancelBooking(bookingId: string) {
-    return this.http
-      .delete(`${this.dbUrl}/bookings/${bookingId}.json`)
-      .pipe(
-        switchMap(() => this.bookings),
-        take(1),
-        tap(bookings => {
-          this.$bookings.next(bookings.filter(b => b.id !== bookingId));
-      }));
+    return this.http.delete(`${this.dbUrl}/bookings/${bookingId}.json`).pipe(
+      switchMap(() => this.bookings),
+      take(1),
+      tap((bookings) => {
+        this.$bookings.next(bookings.filter((b) => b.id !== bookingId));
+      })
+    );
   }
 
   fetchBookings() {
@@ -112,7 +121,7 @@ export class BookingService {
 
           return bookings;
         }),
-        tap(bookings => {
+        tap((bookings) => {
           this.$bookings.next(bookings);
         })
       );

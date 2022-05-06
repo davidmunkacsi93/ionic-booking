@@ -110,36 +110,43 @@ export class PlacesService {
     imageUrl: string
   ) {
     const randomUserId = Math.random().toString();
+    let newPlace: Place;
+    let generatedId: string;
 
-    const newPlace = new Place(
-      randomUserId,
-      title,
-      description,
-      imageUrl,
-      price,
-      dateFrom,
-      dateTo,
-      this.authService.userId,
-      location
-    );
+    return this.authService.userId.pipe(
+      take(1),
+      switchMap((userId) => {
+        if (!userId) {
+          throw new Error('No user found!');
+        }
 
-    let generatedId;
-    return this.http
-      .post<{ name: string }>(this.offeredPlacesUrl, {
-        ...newPlace,
-        id: null,
+        newPlace = new Place(
+          randomUserId,
+          title,
+          description,
+          imageUrl,
+          price,
+          dateFrom,
+          dateTo,
+          userId,
+          location
+        );
+
+        return this.http.post<{ name: string }>(this.offeredPlacesUrl, {
+          ...newPlace,
+          id: null,
+        });
+      }),
+      switchMap((resData) => {
+        generatedId = resData.name;
+        return this.places;
+      }),
+      take(1),
+      tap((places) => {
+        newPlace.id = generatedId;
+        this.$places.next(places.concat(newPlace));
       })
-      .pipe(
-        switchMap((resData) => {
-          generatedId = resData.name;
-          return this.places;
-        }),
-        take(1),
-        tap((places) => {
-          newPlace.id = generatedId;
-          this.$places.next(places.concat(newPlace));
-        })
-      );
+    );
   }
 
   updatePlace(
