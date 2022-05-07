@@ -1,5 +1,22 @@
 {
   "functions": {
-    "engines": {"node": "10"}
+    "engines": {
+      "node": "10"
+    },
+    "source": "functions"
+  },
+  "hosting": {
+    "public": "www",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }
